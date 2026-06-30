@@ -13,10 +13,10 @@ jobs:
       matrix:
         repo:
           [
-            "https://{{ secrets.BACKUP_PRIVATE_REPO_TOKEN }}@github.com/odelli/ipaddress.git",
-            "https://{{ secrets.BACKUP_PRIVATE_REPO_TOKEN }}@github.com/odelli/aaal1986.git",
-            "https://{{ secrets.BACKUP_PRIVATE_REPO_TOKEN }}@github.com/odelli/maxmind-api.git",
-            "https://{{ secrets.BACKUP_PRIVATE_REPO_TOKEN }}@github.com/odelli/odelli.git",
+            "https://" + {{ secrets.BACKUP_PRIVATE_REPO_TOKEN }} + "@github.com/odelli/ipaddress.git",
+            "https://" + {{ secrets.BACKUP_PRIVATE_REPO_TOKEN }} + "@github.com/odelli/aaal1986.git",
+            "https://" + {{ secrets.BACKUP_PRIVATE_REPO_TOKEN }} + "@github.com/odelli/maxmind-api.git",
+            "https://" + {{ secrets.BACKUP_PRIVATE_REPO_TOKEN }} + "@github.com/odelli/odelli.git",
           ]
 
     steps:
