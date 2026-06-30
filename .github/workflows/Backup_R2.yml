@@ -1,0 +1,56 @@
+# Version 2026-06-30
+name: Backup to R2
+
+on:
+  schedule:
+    - cron: "0 1 * * *" # Runs at 01:00 UTC every day
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-22.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        repo:
+          - odelli/aaal1986
+          - odelli/ipaddress
+          - odelli/maxmind-api
+          - odelli/odelli
+
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "lts/*"
+          package-manager-cache: false
+          
+      - name: Install @larose/git-backup
+        run: npm install -g @larose/git-backup
+
+      - name: Back up ${{ matrix.repo }}
+        shell: bash
+        env:
+          BACKUP_PRIVATE_REPO_TOKEN: ${{ secrets.BACKUP_PRIVATE_REPO_TOKEN }}
+          REMOTE_ADDRESS: ${{ secrets.REMOTE_ADDRESS }}
+          ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
+          SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
+          REPO: ${{ matrix.repo }}
+          
+        run: |
+          REPO_URL="https://x-access-token:${BACKUP_PRIVATE_REPO_TOKEN}@github.com/${REPO}.git"
+          SAFE_REPO="${REPO//\//-}"
+          REMOTE="${REMOTE_ADDRESS}/${SAFE_REPO}"
+
+          git-backup snapshot \
+            --repo "$REPO_URL" \
+            --remote "$REMOTE" \
+            --access-key-id "$ACCESS_KEY_ID" \
+            --secret-access-key "$SECRET_ACCESS_KEY"
+
+          git-backup prune \
+            --repo "$REPO_URL" \
+            --remote "$REMOTE" \
+            --access-key-id "$ACCESS_KEY_ID" \
+            --secret-access-key "$SECRET_ACCESS_KEY" \
