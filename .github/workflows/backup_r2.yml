@@ -13,10 +13,10 @@ jobs:
       matrix:
         repo:
           [
-            "https://github.com/odelli/ipaddress.git",
-            "https://github.com/odelli/aaal1986.git",
-            "https://github.com/odelli/maxmind-api.git",
-            "https://github.com/odelli/odelli.git",
+            "https://{{ secrets.BACKUP_PRIVATE_REPO_TOKEN }}@github.com/odelli/ipaddress.git",
+            "https://{{ secrets.BACKUP_PRIVATE_REPO_TOKEN }}@github.com/odelli/aaal1986.git",
+            "https://{{ secrets.BACKUP_PRIVATE_REPO_TOKEN }}@github.com/odelli/maxmind-api.git",
+            "https://{{ secrets.BACKUP_PRIVATE_REPO_TOKEN }}@github.com/odelli/odelli.git",
           ]
 
     steps:
@@ -44,4 +44,4 @@ jobs:
             --remote ${{ secrets.REMOTE_ADRESS }} \
             --access-key-id ${{ secrets.ACCESS_KEY_ID }} \
             --secret-access-key ${{ secrets.SECRET_ACCESS_KEY }} \
-            --retention-policy "monthly=3"
+            --retention-policy "daily=30"
