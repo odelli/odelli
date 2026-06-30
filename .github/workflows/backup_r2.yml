@@ -35,13 +35,13 @@ jobs:
         run: |
           git-backup snapshot \
             --repo ${{ matrix.repo }} \
-            --remote ${{ secrets.REMOTE_ADRESS }} \
+            --remote ${{ secrets.REMOTE_ADDRESS }} \
             --access-key-id ${{ secrets.ACCESS_KEY_ID }} \
             --secret-access-key ${{ secrets.SECRET_ACCESS_KEY }}
 
           git-backup prune \
             --repo ${{ matrix.repo }} \
-            --remote ${{ secrets.REMOTE_ADRESS }} \
+            --remote ${{ secrets.REMOTE_ADDRESS }} \
             --access-key-id ${{ secrets.ACCESS_KEY_ID }} \
             --secret-access-key ${{ secrets.SECRET_ACCESS_KEY }} \
             --retention-policy "daily=30"
