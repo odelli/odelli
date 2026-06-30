@@ -2,27 +2,23 @@ name: Backup to R2
 
 on:
   schedule:
-    - cron: "0 0 1 * *" # Runs at midnight on the first day of every month
+    - cron: "0 0 1 * *" # Runs at midnight UTC on the first day of every month
   workflow_dispatch:
 
 jobs:
-  back-up:
+  backup:
     runs-on: ubuntu-22.04
 
     strategy:
+      fail-fast: false
       matrix:
         repo:
-          [
-            "https://" + {{ secrets.BACKUP_PRIVATE_REPO_TOKEN }} + "@github.com/odelli/ipaddress.git",
-            "https://" + {{ secrets.BACKUP_PRIVATE_REPO_TOKEN }} + "@github.com/odelli/aaal1986.git",
-            "https://" + {{ secrets.BACKUP_PRIVATE_REPO_TOKEN }} + "@github.com/odelli/maxmind-api.git",
-            "https://" + {{ secrets.BACKUP_PRIVATE_REPO_TOKEN }} + "@github.com/odelli/odelli.git",
-          ]
+          - odelli/ipaddress
+          - odelli/aaal1986
+          - odelli/maxmind-api
+          - odelli/odelli
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -32,16 +28,24 @@ jobs:
         run: npm install -g @larose/git-backup
 
       - name: Back up ${{ matrix.repo }}
+        shell: bash
+        env:
+          BACKUP_PRIVATE_REPO_TOKEN: ${{ secrets.BACKUP_PRIVATE_REPO_TOKEN }}
+          REMOTE_ADDRESS: ${{ secrets.REMOTE_ADDRESS }}
+          ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
+          SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
+          REPO: ${{ matrix.repo }}
         run: |
+          REPO_URL="https://x-access-token:${BACKUP_PRIVATE_REPO_TOKEN}@github.com/${REPO}.git"
+
           git-backup snapshot \
-            --repo ${{ matrix.repo }} \
-            --remote ${{ secrets.REMOTE_ADDRESS }} \
-            --access-key-id ${{ secrets.ACCESS_KEY_ID }} \
-            --secret-access-key ${{ secrets.SECRET_ACCESS_KEY }}
+            --repo "$REPO_URL" \
+            --remote "$REMOTE_ADDRESS" \
+            --access-key-id "$ACCESS_KEY_ID" \
+            --secret-access-key "$SECRET_ACCESS_KEY"
 
           git-backup prune \
-            --repo ${{ matrix.repo }} \
-            --remote ${{ secrets.REMOTE_ADDRESS }} \
-            --access-key-id ${{ secrets.ACCESS_KEY_ID }} \
-            --secret-access-key ${{ secrets.SECRET_ACCESS_KEY }} \
-            --retention-policy "daily=30"
+            --repo "$REPO_URL" \
+            --remote "$REMOTE_ADDRESS" \
+            --access-key-id "$ACCESS_KEY_ID" \
+            --secret-access-key "$SECRET_ACCESS_KEY" \
